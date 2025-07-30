@@ -1,21 +1,42 @@
-mod vec3;
-mod color;
-mod ray;
+pub mod vec3;
+pub mod color;
+pub mod ray;
+pub mod hittable;
+pub mod sphere;
+pub mod math;
 
-fn ray_color(r: Ray) -> Color {
-    let unit_direction: Vec3 = Vec3::unit_vector(r.direction());
-    let a = 0.5 * (unit_direction.y + 1.0);
-    return (1.0 - a) * Color{x: 1.0, y: 1.0, z: 1.0} + a * Color{x: 0.5, y: 0.7, z: 1.0};
-}
-
-// Імпортуємо необхідні компоненти.
 use std::fs::File;
 use std::io::{self, Write};
-use crate::color::write_color; // Імпортуємо функцію з модуля Color
+use crate::color::write_color;
 use crate::color::Color;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 use crate::vec3::Point3;
+
+fn hit_sphere (center: Point3, radius: f32,  r: Ray) -> f32 {
+    let oc :Vec3 = center - r.origin();
+    let a = r.direction().length_squared();
+    let h = Vec3::dot(r.direction(), oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
+
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (h - discriminant.sqrt()) / a
+    }
+}
+
+fn ray_color(r: Ray) -> Color {
+    let t = hit_sphere(Point3{x:0.0, y:0.0, z:-1.0}, 0.5, r);
+    if (t > 0.0) {
+        let N: Vec3 = Vec3::unit_vector(r.at(t) - Vec3{x:0.0, y:0.0, z:-1.0});
+        return 0.5 * Color{ x: N.x + 1.0, y: N.y + 1.0, z: N.z + 1.0};
+    }
+    let unit_direction: Vec3 = Vec3::unit_vector(r.direction());
+    let a = 0.5 * (unit_direction.y + 1.0);
+    (1.0 - a) * Color{x: 1.0, y: 1.0, z: 1.0} + a * Color{x: 0.5, y: 0.7, z: 1.0}
+}
 
 fn main() -> std::io::Result<()> {
     // Розміри зображення
@@ -26,7 +47,7 @@ fn main() -> std::io::Result<()> {
 
     let focal_length = 1.0;
     let viewport_height = 2.0;
-    let viewport_width:f32 = (image_width / image_height) as f32 * viewport_height;
+    let viewport_width: f32 = (image_width as f32 / image_height as f32) * viewport_height;
     let camera_center = Point3 {x:0.0, y:0.0, z:0.0};
     let viewport_u = Vec3 {x:viewport_width, y:0.0, z:0.0};
     let viewport_v = Vec3 {x:0.0, y:-viewport_height, z:0.0};

@@ -1,4 +1,5 @@
 use std::ops;
+use std::ops::Neg;
 use derive_more;
 use derive_more::{Add, AddAssign, Display, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
@@ -22,7 +23,12 @@ pub struct Vec3 {
     pub y: f32,
     pub z: f32,
 }
-
+impl ops::Neg for Vec3 {
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        Self::new(-self.x, -self.y, -self.z)
+    }
+}
 // Scalar multiplication (Vec3 * f32)
 impl ops::Mul<f32> for Vec3 {
     type Output = Vec3;
@@ -96,7 +102,7 @@ impl Vec3 {
     fn length(self) -> f32 {
         self.length_squared().sqrt()
     }
-    fn length_squared(self) -> f32 {
+    pub fn length_squared(self) -> f32 {
         self.dot(self)
     }
 
@@ -108,7 +114,7 @@ impl Vec3 {
         }
     }
 
-    fn dot(self, rhs: Vec3) -> f32 {
+    pub fn dot(self, rhs: Vec3) -> f32 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
