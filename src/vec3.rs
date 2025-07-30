@@ -12,9 +12,7 @@ use derive_more::{Add, AddAssign, Display, Div, DivAssign, Mul, MulAssign, Sub, 
     AddAssign,
     Sub,
     SubAssign,
-    Div,
     DivAssign,
-    Mul,
     MulAssign,
     Display,
 )]
@@ -23,6 +21,34 @@ pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
+}
+
+// Scalar multiplication (Vec3 * f32)
+impl ops::Mul<f32> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: f32) -> Vec3 {
+        Vec3 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+// Scalar multiplication (f32 * Vec3)
+impl ops::Mul<Vec3> for f32 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        rhs * self // Reuse the already defined Vec3 * f32 implementation
+    }
+}
+
+// Scalar division (Vec3 / f32)
+impl ops::Div<f32> for Vec3 {
+    type Output = Vec3;
+    fn div(self, rhs: f32) -> Vec3 {
+        self * (1.0 / rhs)
+    }
 }
 
 impl ops::Mul for Vec3 {
@@ -86,7 +112,7 @@ impl Vec3 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
-    fn unit_vector(self) -> Vec3 {
+    pub fn unit_vector(self) -> Vec3 {
         self / self.length()
     }
 }
