@@ -1,7 +1,21 @@
-use std::ops;
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops;
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    PartialEq,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    AddAssign,
+    SubAssign,
+    MulAssign,
+    DivAssign,
+)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
