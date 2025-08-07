@@ -18,7 +18,7 @@ impl Sphere {
 }
 
 impl Hittable for &Sphere {
-    fn hit(self, r: Ray, ray_t:impl RangeBounds<f32>) -> Option<HitRecord> {
+    fn hit(&self, r: Ray, ray_t:impl RangeBounds<f32>) -> Option<HitRecord> {
         let oc: Vec3 = r.origin() - self.center;
         let a = r.direction().length_squared();
         let half_b = oc.dot(r.direction());

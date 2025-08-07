@@ -29,7 +29,7 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-    fn hit(self, r: Ray, ray_t: impl RangeBounds<f32>) -> Option<HitRecord>;
+    fn hit(&self, r: Ray, ray_t: impl RangeBounds<f32>) -> Option<HitRecord>;
 }
 
 // Implement Hittable for any slice of Hittable objects.
@@ -37,7 +37,7 @@ impl<'a, T> Hittable for &'a [T]
 where
     &'a T: Hittable,
 {
-    fn hit(self, r: Ray, ray_t: impl RangeBounds<f32>) -> Option<HitRecord> {
+    fn hit(&self, r: Ray, ray_t: impl RangeBounds<f32>) -> Option<HitRecord> {
         let mut temp_rec = None;
         let mut closest_so_far = match ray_t.start_bound() {
             Bound::Included(x) | Bound::Excluded(x) => *x,

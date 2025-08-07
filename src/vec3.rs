@@ -1,5 +1,6 @@
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use std::ops;
+use crate::math::random_f32;
 
 #[derive(
     Copy,
@@ -63,5 +64,30 @@ impl Vec3 {
 
     pub fn unit_vector(self) -> Vec3 {
         self / self.length()
+    }
+
+    pub fn random()-> Vec3 {
+        Self::new(rand::random::<f32>(), rand::random::<f32>(), rand::random::<f32>())
+    }
+    pub fn random_range(min:f32, max:f32)-> Vec3 {
+        Self::new(random_f32(min, max), random_f32(min, max), random_f32(min, max))
+    }
+    pub fn random_unit_vector() -> Vec3 {
+        loop {
+            let p = Self::random_range(-1.0, 1.0);
+            let lensq = p.length_squared();
+            if lensq <= 1.0 && lensq > 1e-160 {
+                return p / lensq.sqrt();
+            }
+        }
+    }
+
+    pub fn random_on_hemisphere(normal: Vec3) -> Vec3 {
+        let on_unit_sphere = Self::random_unit_vector();
+        if (Self::dot(on_unit_sphere, normal) > 0.0) {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
     }
 }

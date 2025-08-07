@@ -10,6 +10,7 @@ pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: u32,
     pub samples_per_pixel: u32,
+    pub max_depth: u32,
     pixel_samples_scale: f32,
     image_height: u32,
     center: Point3,
@@ -19,11 +20,12 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f32, image_width: u32, samples_per_pixel: u32) -> Self {
+    pub fn new(aspect_ratio: f32, image_width: u32, samples_per_pixel: u32, max_depth: u32) -> Self {
         let mut camera = Self {
             aspect_ratio,
             image_width,
             samples_per_pixel,
+            max_depth,
             pixel_samples_scale: 0.0,
             image_height: 0,
             center: Point3::new(0.0, 0.0, 0.0),
@@ -62,7 +64,7 @@ impl Camera {
 
     pub fn render(&mut self, world: &Vec<Sphere>) -> io::Result<()> {
         self.initialize();
-        let mut file = File::create("image.ppm")?;
+        let mut file = File::create("image.png")?;
         writeln!(file, "P3\n{} {}\n255", self.image_width, self.image_height)?;
 
         for j in 0..self.image_height {
@@ -73,7 +75,7 @@ impl Camera {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
                     let r: Ray = self.get_ray(i, j);
-                    pixel_color += Self::ray_color(r, world.as_slice());
+                    pixel_color += Self::ray_color(r, self.max_depth, &world.as_slice());
                 }
                 // The line below for write_color also needs adjustment
                 write_color(&mut file, &(pixel_color * self.pixel_samples_scale))?;
@@ -95,7 +97,10 @@ impl Camera {
     fn sample_square() -> Vec3 {
         return Vec3::new(rand::random::<f32>() - 0.5, rand::random::<f32>() - 0.5, 0.0);
     }
-    fn ray_color(r: Ray, world: impl Hittable) -> Color {
+    fn ray_color(r: Ray, depth: u32, world:&impl Hittable) -> Color {
+        if depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
         match world.hit(r, ..) {
             None => {
                 let unit_direction: Vec3 = Vec3::unit_vector(r.direction());
@@ -112,7 +117,10 @@ impl Camera {
                     z: 1.0,
                 }
             }
-            Some(rec) => 0.5 * (Color::new(1.0, 1.0, 1.0) + rec.normal),
+            Some(rec) => {
+                let direction: Vec3 = rec.normal + Vec3::random_unit_vector();
+                0.5 * Self::ray_color(Ray::new(rec.p, direction), depth - 1, world)
+            }
         }
     }
 }
@@ -121,6 +129,7 @@ struct Options {
     pub aspect_ratio: f32,
     pub image_width: u32,
     pub samples_per_pixel: u32,
+    pub max_depth: u32,
 }
 impl Default for Options {
     fn default() -> Self {
@@ -128,6 +137,7 @@ impl Default for Options {
             aspect_ratio: 1.0,
             image_width: 100,
             samples_per_pixel: 10,
+            max_depth: 10,
         }
     }
 }
