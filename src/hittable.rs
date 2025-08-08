@@ -1,21 +1,21 @@
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
 use std::collections::Bound;
 use std::ops::RangeBounds;
-use std::sync::Arc;
-use crate::material::Material;
+use std::rc::Rc;
 
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f32,
     pub front_face: bool,
-    pub mat: Arc<dyn Material>,
+    pub mat: Rc<dyn Material>,
 }
 
 impl HitRecord {
     // A constructor that also determines if the ray hit the front or back face.
-    pub fn new(t: f32, p: Point3, r: Ray, outward_normal: Vec3, mat: Arc<dyn Material>) -> Self {
+    pub fn new(t: f32, p: Point3, r: Ray, outward_normal: Vec3, mat: Rc<dyn Material>) -> Self {
         let front_face = r.direction().dot(outward_normal) < 0.0;
         let normal = if front_face {
             outward_normal
