@@ -1,18 +1,22 @@
 use std::ops::RangeBounds;
+use std::sync::Arc;
 use crate::hittable::{HitRecord, Hittable};
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
 
 pub struct Sphere {
     center: Point3,
     radius: f32,
+    mat: Arc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f32) -> Sphere {
+    pub fn new(center: Point3, radius: f32, mat: Arc<dyn Material>) -> Sphere {
         Sphere {
             center,
             radius: radius.max(0.0),
+            mat
         }
     }
 }
