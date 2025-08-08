@@ -5,6 +5,7 @@ pub mod ray;
 pub mod sphere;
 pub mod vec3;
 mod camera;
+mod material;
 
 use std::io::Error;
 use crate::sphere::Sphere;
